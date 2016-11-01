@@ -1,10 +1,9 @@
 import glob as glob
-from paths import paths
-from PIL import Image
-import pandas as pd
 import shutil
+import pandas as pd
+from PIL import Image
+from paths import paths
 
-# TODO make this a script -- add test run arguments
 
 def main():
 
@@ -26,20 +25,22 @@ def main():
             issue_files.append(x)
 
     print "\nThe following", len(issue_files), "source files contain issues:"
-    print pd.DataFrame(data = {"Filename":[x.split("/")[-1] for x in issue_files]})
+    print pd.DataFrame(
+        data={"Filename": [x.split("/")[-1] for x in issue_files]})
 
     # Make a data frame from the remaining images
-    images = pd.DataFrame(data = {"Full path":good_images,
-                                   "Filename": [x.split("/")[-1] for x in good_images],
-                                   "X resolution":[x[0] for x in image_data],
-                                   "Y resolution":[x[1] for x in image_data]})
+    images = pd.DataFrame(
+        data={"Full path": good_images,
+              "Filename": [x.split("/")[-1] for x in good_images],
+              "X resolution": [x[0] for x in image_data],
+              "Y resolution": [x[1] for x in image_data]})
 
     # Identify images that are too small
     small_images = images[(images["X resolution"] < 1024) | \
                           (images["Y resolution"] < 768)]
 
     print "\nThe following", len(small_images), "source images are too small:"
-    print small_images.drop("Full path", axis = 1)
+    print small_images.drop("Full path", axis=1)
 
     # Make a data frame with full size images
     large_images = images.drop(small_images.index)
@@ -55,7 +56,8 @@ def main():
 
         move_files = large_images[diff]
 
-        print "\nThe following", len(move_files), "images will be moved to local:"
+        print "\nThe following", len(
+            move_files), "images will be moved to local:"
         move_files["Filename"]
 
         print "\nMoving..."
