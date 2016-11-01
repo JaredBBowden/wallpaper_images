@@ -28,6 +28,9 @@ def main():
     print pd.DataFrame(
         data={"Filename": [x.split("/")[-1] for x in issue_files]})
 
+    # Move files with issues to the discard directory
+    [shutil.move(x, paths["discard"]) for x in issue_files]
+
     # Make a data frame from the remaining images
     images = pd.DataFrame(
         data={"Full path": good_images,
