@@ -31,13 +31,15 @@ def main():
         except:
             issue_files.append(x)
 
-    # TODO add control for when there are no issues files
-    print "\nThe following", len(issue_files), "source files contain issues:"
-    print pd.DataFrame(
-        data={"Filename": [x.split("/")[-1] for x in issue_files]})
+    if len(issue_files) > 0:
 
-    # Move files with issues to the discard directory
-    [shutil.move(x, paths["discard"]) for x in issue_files]
+        print "\nThe following", len(issue_files), "source files contain issues:"
+        print pd.DataFrame(
+            data={"Filename": [x.split("/")[-1] for x in issue_files]})
+
+        # Move files with issues to the discard directory
+        [shutil.move(x, paths["discard"]) for x in issue_files]
+
 
     # Make a data frame from the remaining images
     images = pd.DataFrame(
@@ -75,9 +77,9 @@ def main():
         if answer == "y":
 
             print "\nMoving new images to local..."
-            [shutil.move(x, paths["local"]) for x in move_files["Full path"]]
+            [shutil.copy(x, paths["local"]) for x in move_files["Full path"]]
 
-            print "Done"
+            print "\nDone"
 
         else:
             print "Image move aborted"
