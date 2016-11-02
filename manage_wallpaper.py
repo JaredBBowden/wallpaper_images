@@ -17,7 +17,6 @@ def main():
 
             drive_files.remove(x)
 
-
     image_data = []
     good_images = []
     issue_files = []
@@ -32,6 +31,7 @@ def main():
         except:
             issue_files.append(x)
 
+    # TODO add control for when there are no issues files
     print "\nThe following", len(issue_files), "source files contain issues:"
     print pd.DataFrame(
         data={"Filename": [x.split("/")[-1] for x in issue_files]})
@@ -47,8 +47,8 @@ def main():
               "Y resolution": [x[1] for x in image_data]})
 
     # Identify images that are too small
-    small_images = images[(images["X resolution"] < 1024) |
-                          (images["Y resolution"] < 768)]
+    small_images = images[(images["X resolution"] < 1024) | (images[
+        "Y resolution"] < 768)]
 
     print "\nThe following", len(small_images), "source images are too small:"
     print small_images.drop("Full path", axis=1)
@@ -67,14 +67,20 @@ def main():
 
         move_files = large_images[diff]
 
-        print "\nThe following", len(
-            move_files), "images will be moved to local:"
-        move_files["Filename"]
+        print "\nFound", len(move_files), "new images that meet criteria:"
+        print move_files["Filename"]
 
-        print "\nMoving..."
-        [shutil.move(x, paths["local"]) for x in move_files["Full path"]]
+        answer = raw_input("\nMove images to local? [y/n]: ")
 
-        print "Done"
+        if answer == "y":
+
+            print "\nMoving new images to local..."
+            [shutil.move(x, paths["local"]) for x in move_files["Full path"]]
+
+            print "Done"
+
+        else:
+            print "Image move aborted"
 
     else:
 
