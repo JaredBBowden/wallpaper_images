@@ -10,6 +10,14 @@ def main():
     # Read in the destination file path
     drive_files = glob.glob(paths["google_drive"] + "*")
 
+    # Remove the 'discard' directory when reading in file paths
+    for x in drive_files:
+
+        if x.find("discard") > 0:
+
+            drive_files.remove(x)
+
+
     image_data = []
     good_images = []
     issue_files = []
@@ -39,7 +47,7 @@ def main():
               "Y resolution": [x[1] for x in image_data]})
 
     # Identify images that are too small
-    small_images = images[(images["X resolution"] < 1024) | \
+    small_images = images[(images["X resolution"] < 1024) |
                           (images["Y resolution"] < 768)]
 
     print "\nThe following", len(small_images), "source images are too small:"
