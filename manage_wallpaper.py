@@ -1,28 +1,45 @@
 import glob as glob
 import shutil
+
 import pandas as pd
 from PIL import Image
+
 from paths import paths
 
 
-def main():
+def read_file_paths(in_path):
+    """
+    Return a list of files located within the source path, removing
+    the 'discard' directory.
+    """
+    # Read in ALL files within the path
+    drive_files = glob.glob(in_path + "*")
 
-    # Read in the destination file path
-    drive_files = glob.glob(paths["google_drive"] + "*")
-
-    # Remove the 'discard' directory when reading in file paths
+    # Remove the 'discard directory'
     for x in drive_files:
 
         if x.find("discard") > 0:
 
             drive_files.remove(x)
 
+    return drive_files
+
+
+def clean_image_attibutes(to_clean):
+    """
+    Identify files that do not load as images and shift them to the
+    'discard' directory.
+
+    Return a data frame containing paths, image titles, and image
+    resolutions.
+    """
+
     image_data = []
     good_images = []
     issue_files = []
 
     # Open files and check for issues
-    for x in drive_files:
+    for x in to_clean:
 
         try:
             image_data.append(Image.open(x).size)
@@ -33,13 +50,13 @@ def main():
 
     if len(issue_files) > 0:
 
-        print "\nThe following", len(issue_files), "source files contain issues:"
+        print "\nThe following", len(
+            issue_files), "source files contain issues:"
         print pd.DataFrame(
             data={"Filename": [x.split("/")[-1] for x in issue_files]})
 
         # Move files with issues to the discard directory
         [shutil.move(x, paths["discard"]) for x in issue_files]
-
 
     # Make a data frame from the remaining images
     images = pd.DataFrame(
@@ -48,7 +65,19 @@ def main():
               "X resolution": [x[0] for x in image_data],
               "Y resolution": [x[1] for x in image_data]})
 
+    return images
+
+
+def main():
+
+    # Read in image file paths
+    drive_files = read_file_paths(paths["google_drive"])
+
+    # Remove non-images, and return a data frame with image attributes
+    images = clean_image_attibutes(drive_files)
+
     # Identify images that are too small
+    # TODO add an option to move images to a 'review' directory
     small_images = images[(images["X resolution"] < 1024) | (images[
         "Y resolution"] < 768)]
 
@@ -69,7 +98,7 @@ def main():
 
         move_files = large_images[diff]
 
-        print "\nFound", len(move_files), "new images that meet criteria:"
+        print "\nFound", len(move_files), "new image(s) that meet criteria:"
         print move_files["Filename"]
 
         answer = raw_input("\nMove images to local? [y/n]: ")
